@@ -18,6 +18,7 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @Column
     private String name;
 
     private String email;

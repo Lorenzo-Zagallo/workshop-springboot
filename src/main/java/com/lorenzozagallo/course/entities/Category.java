@@ -1,5 +1,6 @@
 package com.lorenzozagallo.course.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serial;
@@ -21,6 +22,8 @@ public class Category implements Serializable {
 
     private String name;
 
+    @JsonIgnore
+    @ManyToMany(mappedBy = "categories")
     private Set<Product> products = new HashSet<>();
 
 

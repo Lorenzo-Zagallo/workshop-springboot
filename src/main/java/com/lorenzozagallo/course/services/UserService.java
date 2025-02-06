@@ -2,13 +2,15 @@ package com.lorenzozagallo.course.services;
 
 import com.lorenzozagallo.course.entities.User;
 import com.lorenzozagallo.course.repositories.UserRepository;
+import com.lorenzozagallo.course.services.exceptions.DatabaseException;
 import com.lorenzozagallo.course.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -24,7 +26,7 @@ public class UserService {
     // achar um usuário por ID
     public User findById(Long id) {
         Optional<User> obj = repository.findById(id);
-        return obj.orElseThrow(() -> new ResourceNotFoundException(id));
+        return obj.get();
     }
 
     public User insert(User obj) {
@@ -32,7 +34,14 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        repository.deleteById(id);
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Usuário não encontrado para o ID: " + id);
+        }
+        try {
+            repository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Erro de integridade referencial ao excluir o usuário. MESSAGE:  " + e.getMessage());
+        }
     }
 
     public User update(Long id, User obj) {

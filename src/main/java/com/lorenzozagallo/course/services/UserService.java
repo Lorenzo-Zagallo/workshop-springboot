@@ -2,6 +2,7 @@ package com.lorenzozagallo.course.services;
 
 import com.lorenzozagallo.course.entities.User;
 import com.lorenzozagallo.course.repositories.UserRepository;
+import com.lorenzozagallo.course.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ public class UserService {
     // achar um usuário por ID
     public User findById(Long id) {
         Optional<User> obj = repository.findById(id);
-        return obj.get();
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
     public User insert(User obj) {

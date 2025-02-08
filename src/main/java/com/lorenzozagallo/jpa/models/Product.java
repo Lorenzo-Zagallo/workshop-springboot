@@ -79,7 +79,7 @@ public class Product implements Serializable {
     }
 
     public Double getPrice() {
-        return price;
+        return price != null ? price : 0.0;
     }
 
     public void setPrice(Double price) {

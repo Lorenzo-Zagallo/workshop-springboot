@@ -1,10 +1,9 @@
 package com.lorenzozagallo.jpa.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lorenzozagallo.jpa.models.pk.OrderItemPK;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,39 +16,55 @@ public class OrderItem implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @EmbeddedId
-    private OrderItemPK id = new OrderItemPK();
+    private OrderItemPK id;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    private Order order;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private Product product;
 
     private Integer quantity;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Double price;
 
     public OrderItem() {
     }
 
     public OrderItem(Order order, Product product, Integer quantity, Double price) {
-        id.setOrder(order);
-        id.setProduct(product);
+        this.order = order;
+        this.product = product;
         this.quantity = quantity;
         this.price = price;
     }
 
+    public OrderItemPK getId() {
+        return id;
+    }
+
+    public void setId(OrderItemPK id) {
+        this.id = id;
+    }
+
     @JsonIgnore
     public Order getOrder() {
-        return id.getOrder();
+        return order;
     }
 
     public void setOrder(Order order) {
-        id.setOrder(order);
+        this.order = order;
     }
 
-//    @JsonIgnore - caso eu queira que apareça a informações do pedido e produto
     public Product getProduct() {
-        return id.getProduct();
+        return product;
     }
 
     public void setProduct(Product product) {
-        id.setProduct(product);
+        this.product = product;
     }
-
 
     public Integer getQuantity() {
         return quantity;
@@ -60,13 +75,12 @@ public class OrderItem implements Serializable {
     }
 
     public Double getPrice() {
-        return price;
+        return price != null ? price : 0.0;
     }
 
     public void setPrice(Double price) {
         this.price = price;
     }
-
 
     public Double getSubTotal() {
         return price * quantity;

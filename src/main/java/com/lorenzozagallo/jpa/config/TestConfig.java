@@ -1,6 +1,6 @@
 /* REQUISIÇÕES NO POSTMAN
 
-/users
+/users   (POST)
 {
     "name": "Bob Brown",
     "email": "bob@gmail.com",
@@ -9,7 +9,7 @@
 }
 
 
-/products
+/products   (POST)
 {
     "name": "The Lord of the Rings",
     "description": "Lorem ipsum dolor sit amet, consectetur.",
@@ -18,20 +18,11 @@
 }
 
 
-/orders
+/orders  (POST)
 {
     "moment":"2024-11-20T19:53:07.000-03:00",
     "orderStatus": 2,
-    "user": {
-            "id": "2264cfa0-2926-4291-b3f0-526e8dc247a2",
-            "name": "Bob Brown",
-            "email": "bob@gmail.com",
-            "phone": "977557755",
-            "password": "123456"
-     },
-    "items": [],
-    "payment": null,
-    "total": 0.0
+    "userID": "2264cfa0-2926-4291-b3f0-526e8dc247a2"
 }
 
 

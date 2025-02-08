@@ -32,11 +32,9 @@ public class Order implements Serializable {
     private User client;
 
     @OneToMany(mappedBy = "id.order", fetch = FetchType.EAGER)
-    @JsonIgnore
     private Set<OrderItem> items = new HashSet<>();
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    @JsonIgnore
     private Payment payment;
 
 

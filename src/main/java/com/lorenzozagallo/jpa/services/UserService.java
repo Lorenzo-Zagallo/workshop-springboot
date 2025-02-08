@@ -7,6 +7,7 @@ import com.lorenzozagallo.jpa.services.exceptions.DatabaseException;
 import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +18,12 @@ import java.util.UUID;
 @Service
 public class UserService {
 
+    @Autowired
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
-
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -37,7 +37,7 @@ public class UserService {
     /*public User insertUser(User obj) {
         return userRepository.save(obj);
     }*/
-    public User saveUser(UserRecordDto userRecordDto) {
+    public User insertUser(UserRecordDto userRecordDto) {
         User user = new User();
         user.setName(userRecordDto.name());
         user.setEmail(userRecordDto.email());
@@ -58,6 +58,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public User updateUser(UUID id, User obj) {
         try {
             User entity = userRepository.getReferenceById(id);
@@ -68,9 +69,14 @@ public class UserService {
         }
     }
 
-    private void updateData(User entity, User obj) {
-        entity.setName(obj.getName());
-        entity.setEmail(obj.getEmail());
-        entity.setPhone(obj.getPhone());
+    private void updateData(User entity, User user) {
+        Optional.ofNullable(user.getName()).ifPresent(entity::setName);
+        Optional.ofNullable(user.getEmail()).ifPresent(entity::setEmail);
+        Optional.ofNullable(user.getPhone()).ifPresent(entity::setPhone);
     }
+    /*
+    Optional.ofNullable: Verifica se o valor de um campo é null.
+    Se não for null, o método ifPresent é chamado, e o valor é
+    atribuído ao campo correspondente no objeto entity.
+    */
 }

@@ -36,15 +36,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findUserById(id));
     }
 
-    @PostMapping
-   /* public ResponseEntity<User> insert(@RequestBody User obj) {
+    /*@PostMapping
+    public ResponseEntity<User> insert(@RequestBody User obj) {
         obj = userService.insertUser(obj);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(obj.getId()).toUri();
         return ResponseEntity.created(uri).body(obj);
     }*/
+    @PostMapping
     public ResponseEntity<User> insertUser(@RequestBody UserRecordDto userRecordDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(userRecordDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.insertUser(userRecordDto));
     }
 
     @DeleteMapping(value = "/{id}")
@@ -54,7 +55,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody User obj) {
-        return ResponseEntity.ok().body(userService.updateUser(id, obj));
+    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody User user) {
+        return ResponseEntity.ok().body(userService.updateUser(id, user));
     }
 }

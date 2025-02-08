@@ -29,19 +29,24 @@ public class ProductController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable UUID id) {
-        Product obj = productService.findById(id);
+        Product obj = productService.getProduct(id);
         return ResponseEntity.ok().body(obj);
     }
 
     @PostMapping
     public ResponseEntity<Product> insertProduct(@RequestBody ProductRecordDto productRecordDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(productService.saveProduct(productRecordDto));
+                .body(productService.insertProduct(productRecordDto));
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<Product> updateUser(@PathVariable UUID id, @RequestBody Product product) {
+        return ResponseEntity.ok().body(productService.updateProduct(id, product));
     }
 }

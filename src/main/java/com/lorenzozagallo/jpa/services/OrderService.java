@@ -1,7 +1,13 @@
 package com.lorenzozagallo.jpa.services;
 
+import com.lorenzozagallo.jpa.dtos.OrderRecordDto;
+import com.lorenzozagallo.jpa.models.Category;
 import com.lorenzozagallo.jpa.models.Order;
+import com.lorenzozagallo.jpa.models.enums.OrderStatus;
 import com.lorenzozagallo.jpa.repositories.OrderRepository;
+import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,18 +19,46 @@ import java.util.UUID;
 public class OrderService {
 
     @Autowired
-    private OrderRepository repository;
+    private final OrderRepository orderRepository;
 
-    public List<Order> findAll() {
-        return repository.findAll();
+    public OrderService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
     }
 
-    public Order findById(UUID id) {
-        Optional<Order> obj = repository.findById(id);
+
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    /*public Order getOrder(UUID id) {
+        Optional<Order> obj = orderRepository.findById(id);
         return obj.get();
+    }*/
+    @Transactional // mantém a sessão aberta enquanto a consulta é processada
+    public Order getOrder(UUID id) {
+        Order order = orderRepository.findByIdWithItems(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+        return order;
     }
 
-    public Order insert(Order obj) {
-        return repository.save(obj);
+    public Order insertOrder(OrderRecordDto orderRecordDto) {
+        Order order = new Order();
+        order.setMoment(orderRecordDto.moment());
+        order.setOrderStatus(orderRecordDto.orderStatus());
+        order.setClient(orderRecordDto.user());
+        return orderRepository.save(order);
+    }
+
+    public void deleteOrder(UUID id) {
+        orderRepository.deleteById(id);
+    }
+
+    @Transactional
+    public Order updateOrder(UUID id, Order order) {
+        Order entity = orderRepository.getReferenceById(id);
+        entity.setMoment(order.getMoment());
+        entity.setOrderStatus(order.getOrderStatus());
+        entity.setClient(order.getClient());
+        return orderRepository.save(entity);
     }
 }

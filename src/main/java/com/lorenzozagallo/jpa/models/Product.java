@@ -33,12 +33,14 @@ public class Product implements Serializable {
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
+    @JsonIgnore
     private Set<Category> categories = new HashSet<>();
 //    utiliza-se o set para representar um conjunto e garante que nao vou ter um produto
 //    com mais de uma ocorrencia da mesma categoria pois o mesmo produto não pode ter a
 //    mesma categoria mais de uma vez
 
-    @OneToMany(mappedBy = "id.product")
+    @OneToMany(mappedBy = "id.product", fetch = FetchType.EAGER)
+    @JsonIgnore
     private Set<OrderItem> items = new HashSet<>();
 
     public Product() {

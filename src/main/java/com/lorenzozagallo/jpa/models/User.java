@@ -23,8 +23,8 @@ public class User implements Serializable {
     private String phone;
     private String password;
 
+    @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
     @JsonIgnore
-    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private final Set<Order> orders = new HashSet<>();
 
 

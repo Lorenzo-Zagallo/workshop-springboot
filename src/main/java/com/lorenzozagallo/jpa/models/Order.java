@@ -1,16 +1,15 @@
 package com.lorenzozagallo.jpa.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.lorenzozagallo.jpa.models.enums.OrderStatus;
 import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_order")
@@ -26,16 +25,18 @@ public class Order implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     private Instant moment;
 
-    private Integer orderStatus;
+    private Integer orderStatus; // armazena o código do enum no banco
 
     @ManyToOne
     @JoinColumn(name = "client_id")
     private User client;
 
-    @OneToMany(mappedBy = "id.order")
+    @OneToMany(mappedBy = "id.order", fetch = FetchType.EAGER)
+    @JsonIgnore
     private Set<OrderItem> items = new HashSet<>();
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Payment payment;
 
 
@@ -66,13 +67,11 @@ public class Order implements Serializable {
     }
 
     public OrderStatus getOrderStatus() {
-        return OrderStatus.valueOf(orderStatus);
+        return OrderStatus.valueOf(orderStatus); // converte o código para enum
     }
 
     public void setOrderStatus(OrderStatus orderStatus) {
-        if(orderStatus != null) {
-            this.orderStatus = orderStatus.getCode();
-        }
+        this.orderStatus = (orderStatus == null) ? null : orderStatus.getCode();
     }
 
     public User getClient() {

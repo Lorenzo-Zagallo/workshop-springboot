@@ -44,7 +44,7 @@ public class CategoryService {
     @Transactional
     public Category updateCategory(UUID id, Category category) {
         Category entity = categoryRepository.getReferenceById(id);
-        entity.setName(category.getName());
+        Optional.ofNullable(category.getName()).ifPresent(entity::setName);
         return categoryRepository.save(entity);
     }
 }

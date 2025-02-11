@@ -43,6 +43,13 @@ src/main/java/com.lorenzozagallo.jpa
 ├── services           # Regras de negócio e lógica de aplicação  
 │   ├── exceptions     # Tratamento de exceções  
 └── main               # Classe principal para inicialização da aplicação  
+
+
+src/main/resources
+└── .properties        # Configurações da conexão com o JPA e o Database  
+
+src/main/front-end
+└── .html, .css, .js   # Interface em HTML para responder as requisições do backend
 ```  
 
 ---

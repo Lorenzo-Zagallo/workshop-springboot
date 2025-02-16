@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/categories")
+@RequestMapping(value = "/workshop/categories")
 public class CategoryController {
 
     @Autowired

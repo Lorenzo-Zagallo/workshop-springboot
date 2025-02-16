@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/orders")
+@RequestMapping(value = "/workshop/orders")
 public class OrderController {
 
     @Autowired

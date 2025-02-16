@@ -16,7 +16,8 @@ O projeto segue uma arquitetura baseada em camadas, o que garante organização,
 - Relacionamentos entre entidades gerenciados com **JPA**.  
 - Mapeamento Objeto-Relacional com validações e constraints.  
 - Organização por camadas: `controllers`, `services`, `repositories` e `models`.  
-- Tratamento de exceções personalizado.  
+- Tratamento de exceções personalizado.
+- Inteface gráfica em HTML, CSS e Javascript
 
 ---
 
@@ -25,7 +26,10 @@ O projeto segue uma arquitetura baseada em camadas, o que garante organização,
 - **Spring Boot**: Framework para simplificar a configuração e desenvolvimento de aplicações Java.  
 - **JPA (Java Persistence API)**: Gerenciamento e mapeamento objeto-relacional.  
 - **SQL Server**: Banco de dados utilizado para armazenar e gerenciar as informações.  
-- **Postman**: Ferramenta para testar os endpoints da API.  
+- **Postman**: Ferramenta para testar os endpoints da API.
+- **HTML**: Utilizado para criar a estrutura das páginas
+- **CSS**: Utilizado para estilizar as páginas.
+- **Javascript**: Linguagem para fazer a ponte do backend para o frontend e para dar dinâmica à interface em HTML/CSS.
 
 ---
 
@@ -34,7 +38,9 @@ A estrutura do projeto foi organizada da seguinte forma:
 ```
 src/main/java/com.lorenzozagallo.jpa
 ├── config             # Apenas dados para fazer os testes
-├── controllers        # Controladores responsáveis pelos endpoints  
+├── controllers        # Controladores responsáveis pelos endpoints
+│   ├── exceptions     # Tratamento de exceções
+├── cors               # Habilita que um servidor relaxe a política de mesma origem
 ├── dtos               # Objetos de transferência de dados  
 ├── models             # Modelos das entidades  
 │   ├── enums          # Enumeradores utilizados nas entidades  
@@ -59,7 +65,7 @@ Certifique-se de ter os seguintes recursos instalados na sua máquina:
 - **Java 17+**  
 - **Maven**  
 - **SQL Server**  
-- **Postman** (opcional, mas recomendado para testes)  
+- **Postman** (opcional, mas recomendado para testes)
 
 ---
 

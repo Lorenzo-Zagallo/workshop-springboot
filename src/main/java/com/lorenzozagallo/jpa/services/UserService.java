@@ -14,30 +14,30 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     @Autowired
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    public List<User> getAllUsers() {
+    public List<User> findAll() {
+        logger.info("Buscando todos os usuários");
         return userRepository.findAll();
     }
 
-    public User findUserById(UUID id) {
-        Optional<User> obj = userRepository.findById(id);
-        return obj.get();
+    public User findById(Long id) {
+        logger.info("Buscando usuário com ID: {}", id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado para o ID: " + id));
     }
 
-    /*public User insertUser(User obj) {
-        return userRepository.save(obj);
-    }*/
-    public User insertUser(UserRecordDto userRecordDto) {
+    public User save(UserRecordDto userRecordDto) {
+        logger.info("Salvando novo usuário: {}", userRecordDto.name());
         User user = new User();
         user.setName(userRecordDto.name());
         user.setEmail(userRecordDto.email());
@@ -47,7 +47,8 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(UUID id) {
+    public void delete(Long id) {
+        logger.info("Excluindo usuário com ID: {}", id);
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("Usuário não encontrado para o ID: " + id);
         }
@@ -59,7 +60,8 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(UUID id, User obj) {
+    public User update(Long id, User obj) {
+        logger.info("Atualizando usuário com ID: {}", id);
         try {
             User entity = userRepository.getReferenceById(id);
             updateData(entity, obj);
@@ -74,9 +76,4 @@ public class UserService {
         Optional.ofNullable(user.getEmail()).ifPresent(entity::setEmail);
         Optional.ofNullable(user.getPhone()).ifPresent(entity::setPhone);
     }
-    /*
-    Optional.ofNullable: Verifica se o valor de um campo é null.
-    Se não for null, o método ifPresent é chamado, e o valor é
-    atribuído ao campo correspondente no objeto entity.
-    */
 }

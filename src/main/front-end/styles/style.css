@@ -47,6 +47,18 @@ nav .menu li a {
     font-weight: 600;
 }
 
+.menu li::after {
+    content: '';
+    position: absolute;
+    width: 0%;
+    height: 3px;
+    left: 0;
+}
+
+.menu li:hover::after {
+    width: 100%;
+}
+
 .lista li {
     display: flex;
     align-items: center;

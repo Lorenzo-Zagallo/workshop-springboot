@@ -7,11 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/workshop/users")
@@ -21,19 +18,17 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<User>> findAll() {
        /* User u = new User(UUID.randomUUID(), "Maria", "maria@gmail.com", "9999999", "12345");
-        return ResponseEntity.ok().body(u);
-        List<User> list = userService.getAllUsers();
-        return ResponseEntity.ok().body(list);*/
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
+        return ResponseEntity.ok().body(u);*/
+        List<User> list = userService.findAll();
+        return ResponseEntity.ok().body(list);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<User> getUser(@PathVariable UUID id) {
-        /*User obj = userService.findUserById(id);
-        return ResponseEntity.ok().body(obj);*/
-        return ResponseEntity.status(HttpStatus.OK).body(userService.findUserById(id));
+    public ResponseEntity<User> findById(@PathVariable Long id) {
+        User obj = userService.findById(id);
+        return ResponseEntity.ok().body(obj);
     }
 
     /*@PostMapping
@@ -44,18 +39,20 @@ public class UserController {
         return ResponseEntity.created(uri).body(obj);
     }*/
     @PostMapping
-    public ResponseEntity<User> insertUser(@RequestBody UserRecordDto userRecordDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.insertUser(userRecordDto));
+    public ResponseEntity<User> save(@RequestBody UserRecordDto userRecordDto) {
+        User obj = userService.save(userRecordDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(obj);
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-        userService.deleteUser(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        userService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody User user) {
-        return ResponseEntity.ok().body(userService.updateUser(id, user));
+    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
+        User obj = userService.update(id, user);
+        return ResponseEntity.ok().body(obj);
     }
 }

@@ -1,55 +1,40 @@
 package com.lorenzozagallo.jpa.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tb_payment")
-public class Payment implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+@Table(name = "payments")
+public class Payment{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private Instant moment;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date moment;
 
-    @JsonIgnore
     @OneToOne
     @MapsId
     private Order order;
 
-
-    public Payment() {
-    }
-
-    public Payment(UUID id, Instant moment, Order order) {
-        this.id = id;
-        this.moment = moment;
-        this.order = order;
-    }
-
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Instant getMoment() {
+    public Date getMoment() {
         return moment;
     }
 
-    public void setMoment(Instant moment) {
+    public void setMoment(Date moment) {
         this.moment = moment;
     }
 
@@ -59,18 +44,5 @@ public class Payment implements Serializable {
 
     public void setOrder(Order order) {
         this.order = order;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Payment payment = (Payment) o;
-        return Objects.equals(id, payment.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 }

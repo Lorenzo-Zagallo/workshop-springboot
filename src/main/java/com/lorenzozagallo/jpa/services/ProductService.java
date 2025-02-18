@@ -5,35 +5,37 @@ import com.lorenzozagallo.jpa.models.Product;
 import com.lorenzozagallo.jpa.repositories.ProductRepository;
 import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @Service
 public class ProductService {
 
-    @Autowired
+    private static final Logger LOGGER = Logger.getLogger(ProductService.class.getName());
+
     private final ProductRepository productRepository;
 
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
-
-
-    public List<Product> getAllProducts() {
+    public List<Product> findAll() {
         return productRepository.findAll();
     }
 
-    public Product getProduct(UUID id) {
+    public Optional<Product> findById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+                .or(() -> {
+                    LOGGER.warning("Produto não encontrado para o ID: " + id);
+                    throw new ResourceNotFoundException("Produto não encontrado para o ID: " + id);
+                });
     }
 
-    public Product insertProduct(ProductRecordDto productRecordDto) {
+    public Product save(ProductRecordDto productRecordDto) {
         Product product = new Product();
         product.setName(productRecordDto.name());
         product.setDescription(productRecordDto.description());
@@ -42,30 +44,25 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public void deleteProduct(UUID id) {
+    public void delete(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Produto não encontrado para o ID: " + id);
+        }
         productRepository.deleteById(id);
     }
 
     @Transactional
-    public Product updateProduct(UUID id, Product product) {
-        Product entity = productRepository.getReferenceById(id);
-//        updateData(entity, product);
-        Optional.ofNullable(product.getName()).ifPresent(entity::setName);
-        Optional.ofNullable(product.getDescription()).ifPresent(entity::setDescription);
-        Optional.ofNullable(product.getPrice()).ifPresent(entity::setPrice);;
-        Optional.ofNullable(product.getImgUrl()).ifPresent(entity::setImgUrl);
+    public Product update(Long id, Product product) {
+        Product entity = productRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Produto não encontrado para o ID: " + id));
+        updateData(entity, product);
         return productRepository.save(entity);
     }
-    /*
-    Optional.ofNullable: verifica se o valor de um campo é null.
-    se não for null, o método ifPresent é chamado, e o valor é
-    atribuído ao campo correspondente no objeto entity
-    */
 
-    /*public void updateData(Product entity, Product product) {
-        entity.setName(product.getName());
-        entity.setDescription(product.getDescription());
-        entity.setPrice(product.getPrice());
-        entity.setImgUrl(product.getImgUrl());
-    }*/
+    private void updateData(Product entity, Product product) {
+        Optional.ofNullable(product.getName()).ifPresent(entity::setName);
+        Optional.ofNullable(product.getDescription()).ifPresent(entity::setDescription);
+        Optional.ofNullable(product.getPrice()).ifPresent(entity::setPrice);
+        Optional.ofNullable(product.getImgUrl()).ifPresent(entity::setImgUrl);
+    }
 }

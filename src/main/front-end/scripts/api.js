@@ -83,7 +83,7 @@ async function loadProducts() {
 async function createProducts(products) {
     products.forEach(product => {
         const item = document.createElement('li'); // cria um item da lista(li)
-
+        
         const imgProduct = document.createElement('img'); // cria uma imagem(img)
         imgProduct.src = product.imgUrl;
         item.appendChild(imgProduct); // adiciona o elemento imagem na lista(li)

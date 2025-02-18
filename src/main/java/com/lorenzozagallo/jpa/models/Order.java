@@ -2,74 +2,73 @@ package com.lorenzozagallo.jpa.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.lorenzozagallo.jpa.models.enums.OrderStatus;
 import jakarta.persistence.*;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.*;
 
 @Entity
-@Table(name = "tb_order")
-public class Order implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+@Table(name = "orders")
+public class Order {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
-    private Instant moment;
+    /*@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
+    private Instant moment;*/
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date moment;
 
-    private Integer orderStatus; // armazena o código do enum no banco
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
 
     @ManyToOne
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "user_id")
     private User client;
 
-    @OneToMany(mappedBy = "id.order", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order")
     private Set<OrderItem> items = new HashSet<>();
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
 
-
-    public Order() {
+    public Order(Object o, Instant moment, OrderStatus orderStatus, User user) {
     }
 
-    public Order(UUID id, Instant moment, OrderStatus orderStatus, User client) {
-        this.id = id;
-        this.moment = moment;
-        setOrderStatus(orderStatus);
-        this.client = client;
+
+    public double getTotal() {
+        double sum = 0;
+        for (OrderItem x : items) {
+            sum += x.getSubTotal();
+        }
+        return sum;
     }
 
-    public UUID getId() {
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Instant getMoment() {
+    public Date getMoment() {
         return moment;
     }
 
-    public void setMoment(Instant moment) {
+    public void setMoment(Date moment) {
         this.moment = moment;
     }
 
     public OrderStatus getOrderStatus() {
-        return OrderStatus.valueOf(orderStatus); // converte o código para enum
+        return orderStatus;
     }
 
     public void setOrderStatus(OrderStatus orderStatus) {
-        this.orderStatus = (orderStatus == null) ? null : orderStatus.getCode();
+        this.orderStatus = orderStatus;
     }
 
     public User getClient() {
@@ -92,26 +91,7 @@ public class Order implements Serializable {
         return items;
     }
 
-
-    public Double getTotal() {
-        double sum = 0;
-        for (OrderItem x : items) {
-            sum += x.getSubTotal();
-        }
-        return sum;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Order order = (Order) o;
-        return Objects.equals(id, order.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    public void setItems(Set<OrderItem> items) {
+        this.items = items;
     }
 }

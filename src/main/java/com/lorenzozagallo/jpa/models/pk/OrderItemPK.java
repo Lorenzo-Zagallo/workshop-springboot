@@ -3,43 +3,38 @@ package com.lorenzozagallo.jpa.models.pk;
 import com.lorenzozagallo.jpa.models.Order;
 import com.lorenzozagallo.jpa.models.Product;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
 public class OrderItemPK implements Serializable {
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
+    private Long orderId;
+    private Long productId;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
-
-    public OrderItemPK(Order order, Product product) {
-        this.order = order;
-        this.product = product;
+    public OrderItemPK() {
     }
 
-    public Order getOrder() {
-        return order;
+    public OrderItemPK(Long orderId, Long productId) {
+        this.orderId = orderId;
+        this.productId = productId;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public Long getOrderId() {
+        return orderId;
     }
 
-    public Product getProduct() {
-        return product;
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
     @Override
@@ -47,11 +42,11 @@ public class OrderItemPK implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrderItemPK that = (OrderItemPK) o;
-        return Objects.equals(order, that.order) && Objects.equals(product, that.product);
+        return Objects.equals(orderId, that.orderId) && Objects.equals(productId, that.productId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(order, product);
+        return Objects.hash(orderId, productId);
     }
 }

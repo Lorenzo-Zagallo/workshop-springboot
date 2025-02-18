@@ -1,46 +1,28 @@
 package com.lorenzozagallo.jpa.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
-@Table(name = "tb_category")
-public class Category implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+@Table(name = "categories")
+public class Category {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String name;
 
-    @JsonIgnore
     @ManyToMany(mappedBy = "categories")
     private Set<Product> products = new HashSet<>();
 
 
-    public Category() {
-    }
-
-    public Category(UUID id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -56,16 +38,7 @@ public class Category implements Serializable {
         return products;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Category category = (Category) o;
-        return Objects.equals(id, category.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    public void setProducts(Set<Product> products) {
+        this.products = products;
     }
 }

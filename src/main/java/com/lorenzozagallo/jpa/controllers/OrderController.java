@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/workshop/orders")
@@ -34,13 +34,13 @@ public class OrderController {
     private OrderItemService orderItemService;
 
     @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders() {
-        return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrders());
+    public ResponseEntity<List<Order>> findAll() {
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.findAll());
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Order> getOrder(@PathVariable UUID id) {
-        return ResponseEntity.status(HttpStatus.OK).body(orderService.getOrder(id));
+    public ResponseEntity<Optional<Order>> findById(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.findById(id));
     }
 
     /*@PostMapping
@@ -51,34 +51,42 @@ public class OrderController {
         return ResponseEntity.created(uri).body(obj);
     }*/
     @PostMapping
-    public ResponseEntity<Order> insertOrder(@RequestBody OrderRecordDto orderRecordDto) {
+    public ResponseEntity<Order> save(@RequestBody OrderRecordDto orderRecordDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.insertOrder(orderRecordDto));
+                .body(orderService.save(orderRecordDto));
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable UUID id) {
-        orderService.deleteOrder(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        orderService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Order> updateOrder(@PathVariable UUID id, @RequestBody Order order) {
-        return ResponseEntity.ok().body(orderService.updateOrder(id, order));
+    public ResponseEntity<Order> update(@PathVariable Long id, @RequestBody Order order) {
+        return ResponseEntity.ok().body(orderService.update(id, order));
     }
 
     @PutMapping("/{orderId}/items")
-    public ResponseEntity<OrderItem> addItemToOrder(@PathVariable UUID orderId,
+    public ResponseEntity<OrderItem> addItemToOrder(@PathVariable Long orderId,
                                                     @RequestBody OrderItemRecordDto orderItemRecordDto) {
         // buscar o pedido
-        Order order = orderService.getOrder(orderId);
+        Optional<Order> order = orderService.findById(orderId);
+        if (order.isEmpty()) {
+            // retorna erro 404 caso o pedido não seja encontrado
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
         // buscar o produto
-        Product product = productService.getProduct(orderItemRecordDto.productID());
+        Optional<Product> product = productService.findById(orderItemRecordDto.productID());
+        if (product.isEmpty()) {
+            // retorna erro 404 caso o produto não seja encontrado
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
         OrderItem item = new OrderItem();
-        item.setOrder(order);
-        item.setProduct(product);
+        item.setOrder(order.get());
+        item.setProduct(product.get());
         item.setQuantity(orderItemRecordDto.quantity());
         item.setPrice(orderItemRecordDto.price()); // aqui o preço será setado corretamente
 

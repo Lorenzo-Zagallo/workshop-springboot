@@ -8,33 +8,50 @@ import com.lorenzozagallo.jpa.repositories.OrderItemRepository;
 import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderItemService {
 
     @Autowired
-    private final OrderItemRepository orderItemRepository;
+    private OrderItemRepository orderItemRepository;
 
-    public OrderItemService(OrderItemRepository orderItemRepository) {
-        this.orderItemRepository = orderItemRepository;
+    public List<OrderItem> findAll() {
+        return orderItemRepository.findAll();
     }
 
-    public OrderItemRepository getOrderItemRepository() {
-        return orderItemRepository;
+    public Optional<OrderItem> findById(OrderItemPK id) {
+        return orderItemRepository.findById(id);
     }
 
-    public OrderItem findByOrderAndProduct(Order order, Product product) {
-        // cria o objeto da chave composta
+    public OrderItem findByOrderAndProduct(Long order, Long product) {
         OrderItemPK id = new OrderItemPK(order, product);
-
-        // busca o OrderItem com a chave composta
         return orderItemRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Item do pedido não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Item do pedido não encontrado."));
     }
 
     @Transactional
-    public void save(OrderItem orderItem) {
-        orderItemRepository.save(orderItem);
+    public OrderItem save(OrderItem orderItem) {
+        try {
+            return orderItemRepository.save(orderItem);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Erro ao salvar o item do pedido: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void deleteById(OrderItemPK id) {
+        if (!orderItemRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Item do pedido não encontrado para exclusão.");
+        }
+        try {
+            orderItemRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Erro ao excluir o item do pedido: " + e.getMessage());
+        }
     }
 }

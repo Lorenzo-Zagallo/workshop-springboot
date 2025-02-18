@@ -1,8 +1,6 @@
 package com.lorenzozagallo.jpa.dtos;
 
-import java.util.UUID;
-
-public record ProductRecordDto(UUID id,
+public record ProductRecordDto(Long id,
                                String name,
                                String description,
                                Double price,

@@ -4,15 +4,14 @@ import com.lorenzozagallo.jpa.models.enums.OrderStatus;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
-public record OrderRecordDto(UUID id,
+public record OrderRecordDto(Long id,
                              Instant moment,
-                             Integer orderStatus,
-                             UUID userID,
+                             OrderStatus orderStatus,
+                             Long userID,
                              List<OrderItemRecordDto> items) {
 
     public OrderStatus getOrderStatus() {
-        return OrderStatus.valueOf(orderStatus); // convertendo manualmente
+        return orderStatus;
     }
 }

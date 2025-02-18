@@ -19,30 +19,30 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
-        return ResponseEntity.status(HttpStatus.OK).body(categoryService.getAllCategories());
+    public ResponseEntity<List<Category>> findAll() {
+        return ResponseEntity.status(HttpStatus.OK).body(categoryService.findAll());
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Category> getCategory(@PathVariable UUID id) {
-        return ResponseEntity.status(HttpStatus.OK).body(categoryService.getCategory(id));
+    public ResponseEntity<Category> findById(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(categoryService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Category> insertCategory(@RequestBody CategoryRecordDto categoryRecordDto) {
+    public ResponseEntity<Category> save(@RequestBody CategoryRecordDto categoryRecordDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(categoryService.insertCategory(categoryRecordDto));
+                .body(categoryService.save(categoryRecordDto));
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
-        categoryService.deleteCategory(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        categoryService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable UUID id, @RequestBody Category category) {
-        return ResponseEntity.ok().body(categoryService.updateCategory(id, category));
+    public ResponseEntity<Category> update(@PathVariable Long id, @RequestBody Category category) {
+        return ResponseEntity.ok().body(categoryService.update(id, category));
     }
 
 

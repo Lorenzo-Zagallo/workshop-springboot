@@ -4,6 +4,7 @@ import com.lorenzozagallo.jpa.dtos.OrderItemRecordDto;
 import com.lorenzozagallo.jpa.dtos.OrderRecordDto;
 import com.lorenzozagallo.jpa.models.*;
 import com.lorenzozagallo.jpa.repositories.OrderRepository;
+import com.lorenzozagallo.jpa.repositories.UserRepository;
 import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private UserService userService;
@@ -38,32 +41,33 @@ public class OrderService {
     @Transactional
     public Order save(OrderRecordDto orderRecordDto) {
         try {
-            User user = userService.findById(orderRecordDto.userID());
+            // busca o usuário
+            User client = userRepository.findById(orderRecordDto.clientId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado para o ID: " + orderRecordDto.clientId()));
 
-            Order order = new Order(null,
-                    orderRecordDto.moment(),
-                    orderRecordDto.getOrderStatus(),
-                    user);
+            // cria o pedido
+            Order order = new Order();
+            order.setMoment(orderRecordDto.moment());
+            order.setOrderStatus(orderRecordDto.orderStatus());
+            order.setClient(client);
 
+
+            // adiciona os itens ao pedido
             List<OrderItem> orderItems = orderRecordDto.items().stream()
                     .map(dto -> {
                         Product product = productService.findById(dto.productID())
-                                .orElseThrow(() -> new ResourceNotFoundException(
-                                        "Produto não encontrado para o ID: " + dto.productID()));
-                        return new OrderItem(Optional.of(order), Optional.of(product), dto.quantity(), dto.price());
-                    })
-                    .toList();
+                                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado para o ID: " + dto.productID()));
+                        return new OrderItem(order, product, dto.quantity(), dto.price());
+                    }).toList();
 
             order.getItems().addAll(orderItems);
 
             return orderRepository.save(order);
-
-        } catch (ResourceNotFoundException e) {
-            throw new RuntimeException("Usuário não encontrado para o ID: " + orderRecordDto.userID());
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Erro ao salvar o pedido: " + e.getMessage());
+            throw new RuntimeException("Erro de integridade ao salvar o pedido: " + e.getMessage());
         }
     }
+
 
     public void delete(Long id) {
         if (!orderRepository.existsById(id)) {
@@ -94,13 +98,19 @@ public class OrderService {
 
     @Transactional
     public Order addItemToOrder(Long orderId, OrderItemRecordDto orderItemRecordDto) {
+
+        System.out.println("orderId: " + orderId);
+        System.out.println("productID: " + orderItemRecordDto.productID());
+        System.out.println("quantity: " + orderItemRecordDto.quantity());
+        System.out.println("price: " + orderItemRecordDto.price());
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado para o ID: " + orderId));
 
         Product product = productService.findById(orderItemRecordDto.productID())
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado para o ID: " + orderItemRecordDto.productID()));
 
-        OrderItem newItem = new OrderItem(Optional.of(order), Optional.of(product),
+        OrderItem newItem = new OrderItem(order, product,
                 orderItemRecordDto.quantity(), orderItemRecordDto.price());
 
         order.getItems().add(newItem);

@@ -30,10 +30,9 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User findById(Long id) {
+    public Optional<User> findById(Long id) {
         logger.info("Buscando usuário com ID: {}", id);
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado para o ID: " + id));
+        return userRepository.findById(id);
     }
 
     public User save(UserRecordDto userRecordDto) {

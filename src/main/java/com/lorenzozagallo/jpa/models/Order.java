@@ -1,7 +1,5 @@
 package com.lorenzozagallo.jpa.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lorenzozagallo.jpa.models.enums.OrderStatus;
 import jakarta.persistence.*;
 
@@ -25,7 +23,7 @@ public class Order {
     private OrderStatus orderStatus;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "client_id")
     private User client;
 
     @OneToMany(mappedBy = "order")
@@ -33,6 +31,9 @@ public class Order {
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
+
+    public Order() {
+    }
 
     public Order(Object o, Instant moment, OrderStatus orderStatus, User user) {
     }

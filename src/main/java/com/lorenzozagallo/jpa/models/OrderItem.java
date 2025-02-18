@@ -1,5 +1,6 @@
 package com.lorenzozagallo.jpa.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lorenzozagallo.jpa.models.pk.OrderItemPK;
 import jakarta.persistence.*;
 
@@ -18,9 +19,8 @@ public class OrderItem {
     public OrderItem() {
     }
 
-    public OrderItem(Optional<Order> order, Optional<Product> product, Integer quantity, Double price) {
-        this.order = order.orElse(null);
-        this.product = product.orElse(null);
+    public OrderItem(Order order, Product product, Integer quantity, Double price) {
+        this.id = new OrderItemPK(order.getId(), product.getId());
         this.quantity = quantity;
         this.price = price;
     }
@@ -28,11 +28,13 @@ public class OrderItem {
     @ManyToOne
     @MapsId("orderId") // mapeia a chave composta 'orderId' da classe OrderItemPK
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Order order;
 
     @ManyToOne
     @MapsId("productId") // mapeia a chave composta 'productId' da classe OrderItemPK
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Product product;
 
     public double getSubTotal() {

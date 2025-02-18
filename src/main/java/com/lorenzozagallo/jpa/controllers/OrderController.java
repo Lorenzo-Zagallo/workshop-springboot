@@ -35,12 +35,14 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<List<Order>> findAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(orderService.findAll());
+        List<Order> orders = orderService.findAll();
+        return ResponseEntity.ok().body(orders);
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<Optional<Order>> findById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(orderService.findById(id));
+        Optional<Order> order = orderService.findById(id);
+        return ResponseEntity.ok().body(order);
     }
 
     /*@PostMapping
@@ -52,8 +54,8 @@ public class OrderController {
     }*/
     @PostMapping
     public ResponseEntity<Order> save(@RequestBody OrderRecordDto orderRecordDto) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.save(orderRecordDto));
+        Order order = orderService.save(orderRecordDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -64,7 +66,8 @@ public class OrderController {
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<Order> update(@PathVariable Long id, @RequestBody Order order) {
-        return ResponseEntity.ok().body(orderService.update(id, order));
+        Order order1 = orderService.update(id, order);
+        return ResponseEntity.ok().body(order1);
     }
 
     @PutMapping("/{orderId}/items")

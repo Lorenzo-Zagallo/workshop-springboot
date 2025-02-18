@@ -1,31 +1,65 @@
 /* REQUISIÇÕES NO POSTMAN
 
-/users   (POST)
+
+`POST /users`
 {
-    "name": "Bob Brown",
-    "email": "bob@gmail.com",
-    "phone": "977557755",
-    "password": "123456"
+  "name": "João Silva",
+  "email": "joao.silva@example.com",
+  "phone": "11999999999",
+  "password": "senha123"
 }
 
 
-/products   (POST)
+`POST /categories`
 {
-    "name": "The Lord of the Rings",
-    "description": "Lorem ipsum dolor sit amet, consectetur.",
-    "price": 90.5,
-    "imgUrl": ""
+  "name": "Eletrônicos"
 }
 
 
-/orders  (POST)
+
+`POST /products`
 {
-    "moment":"2024-11-20T19:53:07.000-03:00",
-    "orderStatus": 2,
-    "userID": "2264cfa0-2926-4291-b3f0-526e8dc247a2"
+  "name": "Smartphone XYZ",
+  "description": "Um smartphone com ótimas funcionalidades.",
+  "price": 2500.00,
+  "imgUrl": "https://example.com/smartphone.jpg"
 }
 
 
+`POST /orders`
+{
+  "moment": "2024-02-18T10:30:00Z",
+  "orderStatus": "ORDER_STATUS",
+  "clientId": "UUID_DO_USUÁRIO",
+  "items": [
+    {
+      "productID": "UUID_DO_PRODUTO",
+      "quantity": 2,
+      "price": 2500.00
+    }
+  ]
+}
+
+
+`POST /payments`
+{
+  "moment": "2024-02-18T11:00:00Z",
+  "orderId": "ID_DO_PEDIDO"
+}
+
+`PUT /orders/{orderId}/items`
+{
+  "productID": 123,
+  "quantity": 2,
+  "price": 19.99
+}
+
+
+
+
+**ordem correta para inserção**
+1. **User** → 2. **Category** → 3. **Product**
+→ 4. **Order** (com itens) → 5. **Payment** → 6. **OrdemItem**
 
 
 

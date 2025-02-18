@@ -1,6 +1,7 @@
 package com.lorenzozagallo.jpa.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.*;
 
 import java.util.*;
@@ -19,6 +20,7 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "client")
+    @JsonIgnore
     private List<Order> orders = new ArrayList<>();
 
 

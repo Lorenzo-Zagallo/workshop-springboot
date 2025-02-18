@@ -1,11 +1,9 @@
 package com.lorenzozagallo.jpa.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.time.Instant;
 import java.util.Date;
-import java.util.Objects;
-import java.util.UUID;
 
 @Entity
 @Table(name = "payments")
@@ -20,6 +18,7 @@ public class Payment{
 
     @OneToOne
     @MapsId
+    @JsonIgnore
     private Order order;
 
     public Long getId() {

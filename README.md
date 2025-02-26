@@ -1,7 +1,9 @@
 # Projeto API com Java, Spring Boot, JPA e SQL Server  
 
 ## Descrição  
-Este projeto consiste no desenvolvimento de uma API utilizando **Java**, **Spring Boot**, **JPA** e **SQL Server** para gerenciar operações de CRUD em um sistema que envolve entidades como usuários, produtos, pedidos e pagamentos. Além disso, o **Postman** foi utilizado para testar e validar os endpoints implementados.  
+Este projeto consiste em uma aplicação web para o monitoramento e gerenciamento de uma loja de produtos. Ele consiste no desenvolvimento de uma API RESTful utilizando **Java**, **Spring Boot**(Spring Data JPA e Spring Web) e **SQL Server** como banco de dados para a persistência dos dados.
+Nele, é permitido as operações de CRUD em um sistema que envolve entidades como usuários, produtos, pedidos, pagamentos e categorias dos produtos. 
+Como teste para as requisições HTTP e validação dos endpoints implementados, foi utilizado o **Postman**.
 
 O projeto segue uma arquitetura baseada em camadas, o que garante organização, facilidade de manutenção e escalabilidade.  
 
@@ -11,13 +13,14 @@ O projeto segue uma arquitetura baseada em camadas, o que garante organização,
 - Operações CRUD completas para as entidades:  
   - **Usuários**  
   - **Produtos**  
+  - **Categorias**
   - **Pedidos**  
-  - **Pagamentos**  
+  - **Pagamentos**
 - Relacionamentos entre entidades gerenciados com **JPA**.  
-- Mapeamento Objeto-Relacional com validações e constraints.  
-- Organização por camadas: `controllers`, `services`, `repositories` e `models`.  
+- Mapeamento Objeto-Relacional com validações e constraints.
+- Organização por camadas: `controllers`, `services`, `dto's`, `repositories` e `models`.  
 - Tratamento de exceções personalizado.
-- Inteface gráfica em HTML, CSS e Javascript
+- Interface gráfica em HTML, CSS e Javascript
 
 ---
 
@@ -52,19 +55,21 @@ src/main/java/com.lorenzozagallo.jpa
 
 
 src/main/resources
-└── .properties        # Configurações da conexão com o JPA e o Database  
+└── properties         # Configurações da conexão com o JPA e o Database  
 
 src/main/front-end
-└── .html, .css, .js   # Interface em HTML para responder as requisições do backend
+├── scripts            # Javascript para realizar a conexão com o backend  
+├── styles             # Estilização do html
+└── index              # Estrutura do frontend
 ```  
 
 ---
 
 ## Pré-requisitos  
 Certifique-se de ter os seguintes recursos instalados na sua máquina:  
-- **Java 17+**  
-- **Maven**  
-- **SQL Server**  
+- **Java 17+**
+- **Maven**
+- **SQL Server** (ou algum banco de dados de sua preferência, só mudar no properties)
 - **Postman** (opcional, mas recomendado para testes)
 
 ---

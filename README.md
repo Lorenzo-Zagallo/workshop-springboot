@@ -7,6 +7,11 @@ Como teste para as requisições HTTP e validação dos endpoints implementados,
 
 O projeto segue uma arquitetura baseada em camadas, o que garante organização, facilidade de manutenção e escalabilidade.  
 
+## Domain Model
+
+![Domain_Model](images/domainModel.png)
+
+
 ---
 
 ## Funcionalidades  

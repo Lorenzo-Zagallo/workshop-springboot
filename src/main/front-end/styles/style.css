@@ -76,13 +76,16 @@ img {
 }
 
 p {
-    font-size: 1em;
+    font-size: 0.5em;
     color: #333;
+    font-weight: 100;
 }
 
 
 
 main {
+    display: flex;
+    justify-content: space-around;
     padding: 2em;
 }
 

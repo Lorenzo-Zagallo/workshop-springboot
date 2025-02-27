@@ -10,7 +10,7 @@
 
     <header>
 
-        <h1 id="page_title">Home</h1>
+        <h1>Users</h1>
         <nav>
             <ul class="menu">
                 <li><a onclick="pageMenu(1)" href="index.html">Home</a></li>
@@ -24,10 +24,24 @@
 
     </header>
 
-    <main id="list-main">
+    <main>
 
-        <h1 id="page_list">Select any query</h1>
-        <ul class="lista"></ul>
+        <div>
+            <h1 id="usersList">List of Users</h1>
+            <ul class="lista"></ul>
+        </div>
+        <div>
+            <h1>Insert a user</h1>
+            <form id="cadastroForm">
+                <input id="nameRequest" type="text" name="nome" placeholder="Name">
+                <input id="emailRequest" type="email" name="email" placeholder="Email">
+                <input id="phoneRequest" type="number" name="phone" placeholder="Phone">
+                <input id="passwordRequest" type="text" name="password" placeholder="Password">
+                <button type="submit">Cadastrar</button>
+                <button type="button" onclick="resetUserForm()">Limpar</button>
+            </form>
+        </div>
+        
 
     </main>
 

@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/workshop/payments")
@@ -25,8 +24,8 @@ public class PaymentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Payment> findById(@PathVariable Long id) {
-        Optional<Payment> payment = paymentService.findById(id);
-        return payment.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        Payment payment = paymentService.findById(id);
+        return ResponseEntity.ok().body(payment);
     }
 
     @PostMapping

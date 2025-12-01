@@ -2,42 +2,44 @@ package com.lorenzozagallo.jpa.services;
 
 import com.lorenzozagallo.jpa.dtos.CategoryRecordDto;
 import com.lorenzozagallo.jpa.models.Category;
-import com.lorenzozagallo.jpa.models.User;
 import com.lorenzozagallo.jpa.repositories.CategoryRepository;
 import com.lorenzozagallo.jpa.services.exceptions.DatabaseException;
 import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class CategoryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(CategoryService.class);
+    private static final Logger LOGGER = Logger.getLogger(CategoryService.class.getName());
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
+
+    public CategoryService(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
     public List<Category> findAll() {
-        logger.info("Buscando todos as categorias");
+        LOGGER.info("Buscando todas as categorias");
         return categoryRepository.findAll();
     }
 
     public Category findById(Long id) {
-        logger.info("Buscando categoria com ID: {}", id);
+        LOGGER.info("Buscando categoria com ID: " + id);
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada para o ID: " + id));
+                .orElseThrow(() -> { 
+                    LOGGER.warning("Categoria não encontrada para o ID: " + id);
+                    return new ResourceNotFoundException("Categoria não encontrada para o ID: " + id);
+                });
     }
 
     public Category save(CategoryRecordDto categoryRecordDto) {
-        logger.info("Salvando nova categoria: {}", categoryRecordDto.name());
+        LOGGER.info("Salvando nova categoria: " + categoryRecordDto.name());
         Category category = new Category();
         category.setName(categoryRecordDto.name());
         return categoryRepository.save(category);
@@ -45,30 +47,22 @@ public class CategoryService {
 
     @Transactional
     public void delete(Long id) {
-        logger.info("Excluindo categoria com ID: {}", id);
+        LOGGER.info("Excluindo categoria com ID: " + id);
         if (!categoryRepository.existsById(id)) {
             throw new ResourceNotFoundException("Categoria não encontrada para o ID: " + id);
         }
         try {
             categoryRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Erro de integridade referencial ao excluir a categoria. MESSAGE:  " + e.getMessage());
+            throw new DatabaseException("Não é possível excluir categoria que possui produtos.");
         }
     }
 
     @Transactional
-    public Category update(Long id, Category obj) {
-        logger.info("Atualizando usuário com ID: {}", id);
-        try {
-            Category entity = categoryRepository.getReferenceById(id);
-            updateData(entity, obj);
-            return categoryRepository.save(entity);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Usuário não encontrado para o ID: " + id);
-        }
-    }
-
-    private void updateData(Category entity, Category category) {
-        Optional.ofNullable(category.getName()).ifPresent(entity::setName);
+    public Category update(Long id, CategoryRecordDto categoryRecordDto) {
+        LOGGER.info("Atualizando categoria com ID: " + id);
+        Category entity = findById(id);
+        entity.setName(categoryRecordDto.name());
+        return categoryRepository.save(entity);
     }
 }

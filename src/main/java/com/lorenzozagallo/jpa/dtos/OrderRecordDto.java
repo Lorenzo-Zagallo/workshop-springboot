@@ -6,10 +6,10 @@ import java.util.Date;
 import java.util.List;
 
 public record OrderRecordDto(Long id,
-                             Date moment,
-                             OrderStatus orderStatus,
-                             Long clientId,
-                             List<OrderItemRecordDto> items) {
+        Date moment,
+        OrderStatus orderStatus,
+        Long clientId,
+        List<OrderItemRecordDto> items) {
 
     public OrderStatus getOrderStatus() {
         return orderStatus;

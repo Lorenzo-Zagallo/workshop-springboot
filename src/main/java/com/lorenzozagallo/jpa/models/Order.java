@@ -1,10 +1,12 @@
 package com.lorenzozagallo.jpa.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lorenzozagallo.jpa.models.enums.OrderStatus;
 import jakarta.persistence.*;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "orders")
@@ -14,10 +16,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /*@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
-    private Instant moment;*/
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date moment;
+    // FORMATO ISO 8601 (Padrão mundial)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
+    private Instant moment;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
@@ -29,15 +30,19 @@ public class Order {
     @OneToMany(mappedBy = "order")
     private Set<OrderItem> items = new HashSet<>();
 
+    // Cascade ALL garante que se salvar o pedido, salva o pagamento junto
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
 
     public Order() {
     }
 
-    public Order(Object o, Instant moment, OrderStatus orderStatus, User user) {
+    public Order(Long id, Instant moment, OrderStatus orderStatus, User client) {
+        this.id = id;
+        this.moment = moment;
+        this.orderStatus = orderStatus;
+        this.client = client;
     }
-
 
     public double getTotal() {
         double sum = 0;
@@ -47,7 +52,7 @@ public class Order {
         return sum;
     }
 
-
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -56,11 +61,11 @@ public class Order {
         this.id = id;
     }
 
-    public Date getMoment() {
+    public Instant getMoment() {
         return moment;
     }
 
-    public void setMoment(Date moment) {
+    public void setMoment(Instant moment) {
         this.moment = moment;
     }
 
@@ -90,9 +95,5 @@ public class Order {
 
     public Set<OrderItem> getItems() {
         return items;
-    }
-
-    public void setItems(Set<OrderItem> items) {
-        this.items = items;
     }
 }

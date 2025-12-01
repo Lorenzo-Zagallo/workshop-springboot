@@ -3,35 +3,30 @@ package com.lorenzozagallo.jpa.controllers;
 import com.lorenzozagallo.jpa.dtos.OrderItemRecordDto;
 import com.lorenzozagallo.jpa.dtos.OrderRecordDto;
 import com.lorenzozagallo.jpa.models.Order;
-import com.lorenzozagallo.jpa.models.OrderItem;
-import com.lorenzozagallo.jpa.models.Product;
-import com.lorenzozagallo.jpa.services.OrderItemService;
 import com.lorenzozagallo.jpa.services.OrderService;
-import com.lorenzozagallo.jpa.services.ProductService;
-import com.lorenzozagallo.jpa.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/workshop/orders")
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ProductService productService;
-
-    @Autowired
-    private OrderItemService orderItemService;
+    // Injeção via Construtor
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Order>> findAll() {
@@ -40,18 +35,13 @@ public class OrderController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Optional<Order>> findById(@PathVariable Long id) {
-        Optional<Order> order = orderService.findById(id);
+    public ResponseEntity<Order> findById(@PathVariable Long id) {
+        // Service retorna o objeto direto ou lança exceção (tratada no
+        // GlobalExceptionHandler)
+        Order order = orderService.findById(id);
         return ResponseEntity.ok().body(order);
     }
 
-    /*@PostMapping
-    public ResponseEntity<Order> insertOrder(@RequestBody Order obj) {
-        obj = orderService.insert(obj);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(obj.getId()).toUri();
-        return ResponseEntity.created(uri).body(obj);
-    }*/
     @PostMapping
     public ResponseEntity<Order> save(@RequestBody OrderRecordDto orderRecordDto) {
         Order order = orderService.save(orderRecordDto);
@@ -65,36 +55,17 @@ public class OrderController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Order> update(@PathVariable Long id, @RequestBody Order order) {
-        Order order1 = orderService.update(id, order);
-        return ResponseEntity.ok().body(order1);
+    public ResponseEntity<Order> update(@PathVariable Long id, @RequestBody OrderRecordDto dto) {
+        Order order = orderService.update(id, dto);
+        return ResponseEntity.ok().body(order);
     }
 
-    @PutMapping("/{orderId}/items")
-    public ResponseEntity<OrderItem> addItemToOrder(@PathVariable Long orderId,
-                                                    @RequestBody OrderItemRecordDto orderItemRecordDto) {
-        // buscar o pedido
-        Optional<Order> order = orderService.findById(orderId);
-        if (order.isEmpty()) {
-            // retorna erro 404 caso o pedido não seja encontrado
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        // buscar o produto
-        Optional<Product> product = productService.findById(orderItemRecordDto.productID());
-        if (product.isEmpty()) {
-            // retorna erro 404 caso o produto não seja encontrado
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        OrderItem item = new OrderItem();
-        item.setOrder(order.get());
-        item.setProduct(product.get());
-        item.setQuantity(orderItemRecordDto.quantity());
-        item.setPrice(orderItemRecordDto.price()); // aqui o preço será setado corretamente
-
-        orderItemService.save(item); // salvar o item no pedido
-        return ResponseEntity.status(HttpStatus.CREATED).body(item);
+    // Endpoint específico para adicionar item (Clean Code: delegando para o
+    // Service)
+    @PostMapping("/{orderId}/items")
+    public ResponseEntity<Order> addItemToOrder(@PathVariable Long orderId,
+            @RequestBody OrderItemRecordDto orderItemRecordDto) {
+        Order updatedOrder = orderService.addItemToOrder(orderId, orderItemRecordDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(updatedOrder);
     }
-
 }

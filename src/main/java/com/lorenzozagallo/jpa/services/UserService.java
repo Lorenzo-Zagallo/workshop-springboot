@@ -5,38 +5,42 @@ import com.lorenzozagallo.jpa.models.User;
 import com.lorenzozagallo.jpa.repositories.UserRepository;
 import com.lorenzozagallo.jpa.services.exceptions.DatabaseException;
 import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 
 @Service
 public class UserService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger LOGGER = Logger.getLogger(UserService.class.getName());
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public List<User> findAll() {
-        logger.info("Buscando todos os usuários");
+        LOGGER.info("Buscando todos os usuários");
         return userRepository.findAll();
     }
 
-    public Optional<User> findById(Long id) {
-        logger.info("Buscando usuário com ID: {}", id);
-        return userRepository.findById(id);
+    public User findById(Long id) {
+        LOGGER.info("Buscando usuário com ID: " + id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> {
+                    LOGGER.warning("Usuário não encontrado para o ID: " + id);
+                    return new ResourceNotFoundException("Usuário não encontrado para o ID: " + id);
+                });
     }
 
+    @Transactional
     public User save(UserRecordDto userRecordDto) {
-        logger.info("Salvando novo usuário: {}", userRecordDto.name());
+        LOGGER.info("Salvando novo usuário: " + userRecordDto.name());
         User user = new User();
         user.setName(userRecordDto.name());
         user.setEmail(userRecordDto.email());
@@ -47,32 +51,32 @@ public class UserService {
 
     @Transactional
     public void delete(Long id) {
-        logger.info("Excluindo usuário com ID: {}", id);
+        LOGGER.info("Excluindo usuário com ID: " + id);
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("Usuário não encontrado para o ID: " + id);
         }
         try {
             userRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Erro de integridade referencial ao excluir o usuário. MESSAGE:  " + e.getMessage());
+            throw new DatabaseException("Não é possível excluir usuário que possui pedidos relacionados.");
         }
     }
 
     @Transactional
-    public User update(Long id, User obj) {
-        logger.info("Atualizando usuário com ID: {}", id);
-        try {
-            User entity = userRepository.getReferenceById(id);
-            updateData(entity, obj);
-            return userRepository.save(entity);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Usuário não encontrado para o ID: " + id);
-        }
+    public User update(Long id, UserRecordDto userRecordDto) {
+        LOGGER.info("Atualizando usuário com ID: " + id);
+        User entity = findById(id);
+        updateData(entity, userRecordDto);
+        return userRepository.save(entity);
     }
 
-    private void updateData(User entity, User user) {
-        Optional.ofNullable(user.getName()).ifPresent(entity::setName);
-        Optional.ofNullable(user.getEmail()).ifPresent(entity::setEmail);
-        Optional.ofNullable(user.getPhone()).ifPresent(entity::setPhone);
+    private void updateData(User entity, UserRecordDto userRecordDto) {
+        if (userRecordDto.name() != null)
+            entity.setName(userRecordDto.name());
+        if (userRecordDto.email() != null)
+            entity.setEmail(userRecordDto.email());
+        if (userRecordDto.phone() != null)
+            entity.setPhone(userRecordDto.phone());
+        // não se atualiza senha aqui, mas em endpoint específico
     }
 }

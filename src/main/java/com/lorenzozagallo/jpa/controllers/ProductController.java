@@ -3,33 +3,38 @@ package com.lorenzozagallo.jpa.controllers;
 import com.lorenzozagallo.jpa.dtos.ProductRecordDto;
 import com.lorenzozagallo.jpa.models.Product;
 import com.lorenzozagallo.jpa.services.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/workshop/products")
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Product>> findAll() {
-        /*User u = new User(UUID.randomUUID(), "Maria", "maria@gmail.com", "9999999", "12345");
-        return ResponseEntity.ok().body(u);*/
         List<Product> list = productService.findAll();
         return ResponseEntity.ok().body(list);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Optional<Product>> findById(@PathVariable Long id) {
-        Optional<Product> obj = productService.findById(id);
+    public ResponseEntity<Product> findById(@PathVariable Long id) {
+        Product obj = productService.findById(id);
         return ResponseEntity.ok().body(obj);
     }
 
@@ -46,8 +51,8 @@ public class ProductController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product product) {
-        Product obj = productService.update(id, product);
+    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody ProductRecordDto productRecordDto) {
+        Product obj = productService.update(id, productRecordDto);
         return ResponseEntity.ok().body(obj);
     }
 }

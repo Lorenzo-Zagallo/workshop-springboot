@@ -29,17 +29,13 @@ public class ControllerExceptionHandler {
         return ResponseEntity.status(status).body(err);
     }
 
-    /* ou pode fazer assim
+    // @ExceptionHandler(ResourceNotFoundException.class)
+    // public ResponseEntity<String> handlerResourceNotFound(ResourceNotFoundException e) {
+    //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    // }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> handlerResourceNotFound(ResourceNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-    }
-
-    @ExceptionHandler(DatabaseException.class)
-    public ResponseEntity<String> handlerDatabaseException(DatabaseException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-
-     */
+    // @ExceptionHandler(DatabaseException.class)
+    // public ResponseEntity<String> handlerDatabaseException(DatabaseException e) {
+    //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    // }
 }

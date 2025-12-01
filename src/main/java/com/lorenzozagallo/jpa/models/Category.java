@@ -2,7 +2,8 @@ package com.lorenzozagallo.jpa.models;
 
 import jakarta.persistence.*;
 
-import java.util.*;
+import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "categories")
@@ -17,6 +18,13 @@ public class Category {
     @ManyToMany(mappedBy = "categories")
     private Set<Product> products = new HashSet<>();
 
+    public Category() {
+    }
+
+    public Category(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     public Long getId() {
         return id;

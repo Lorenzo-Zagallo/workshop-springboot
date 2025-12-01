@@ -26,9 +26,7 @@ public class OrderItemController {
     public ResponseEntity<OrderItem> findById(
             @PathVariable Long orderId, @PathVariable Long productId) {
         OrderItemPK id = new OrderItemPK(orderId, productId);
-        return orderItemService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return orderItemService.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping

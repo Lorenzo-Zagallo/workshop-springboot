@@ -1,10 +1,10 @@
 package com.lorenzozagallo.jpa.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "users")
@@ -17,13 +17,25 @@ public class User {
     private String name;
     private String email;
     private String phone;
+
+    // SEGURANÇA: Isso impede que a senha apareça no retorno da API
+    @JsonIgnore
     private String password;
 
     @OneToMany(mappedBy = "client")
     @JsonIgnore
     private List<Order> orders = new ArrayList<>();
 
+    public User() {
+    }
 
+    public User(Long id, String name, String email, String phone, String password) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+    }
 
     public Long getId() {
         return id;

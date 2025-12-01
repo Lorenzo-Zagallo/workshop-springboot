@@ -3,7 +3,8 @@ package com.lorenzozagallo.jpa.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.util.*;
+import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "products")
@@ -29,14 +30,24 @@ public class Product {
 
 
     @JsonIgnore
-    public Set<Optional<Order>> getOrders() {
-        Set<Optional<Order>> set = new HashSet<>();
+    public Set<Order> getOrders() {
+        Set<Order> set = new HashSet<>();
         for (OrderItem x : items) {
             set.add(x.getOrder());
         }
         return set;
     }
 
+    public Product() {
+    }
+
+    public Product(Long id, String name, String description, Double price, String imgUrl) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.imgUrl = imgUrl;
+    }
 
     public Long getId() {
         return id;

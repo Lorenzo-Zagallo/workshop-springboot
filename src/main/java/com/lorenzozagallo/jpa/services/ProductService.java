@@ -3,13 +3,14 @@ package com.lorenzozagallo.jpa.services;
 import com.lorenzozagallo.jpa.dtos.ProductRecordDto;
 import com.lorenzozagallo.jpa.models.Product;
 import com.lorenzozagallo.jpa.repositories.ProductRepository;
+import com.lorenzozagallo.jpa.services.exceptions.DatabaseException;
 import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 @Service
@@ -27,15 +28,18 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Optional<Product> findById(Long id) {
+    public Product findById(Long id) {
+        LOGGER.info("Buscando produto com ID: " + id);
         return productRepository.findById(id)
-                .or(() -> {
+                .orElseThrow(() -> {
                     LOGGER.warning("Produto não encontrado para o ID: " + id);
-                    throw new ResourceNotFoundException("Produto não encontrado para o ID: " + id);
+                    return new ResourceNotFoundException("Produto não encontrado para o ID: " + id);
                 });
     }
 
+    @Transactional
     public Product save(ProductRecordDto productRecordDto) {
+        LOGGER.info("Salvando novo produto: " + productRecordDto.name());
         Product product = new Product();
         product.setName(productRecordDto.name());
         product.setDescription(productRecordDto.description());
@@ -45,24 +49,33 @@ public class ProductService {
     }
 
     public void delete(Long id) {
+        LOGGER.info("Excluindo produto com ID: " + id);
         if (!productRepository.existsById(id)) {
             throw new ResourceNotFoundException("Produto não encontrado para o ID: " + id);
         }
-        productRepository.deleteById(id);
+        try {
+            productRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Não é possível excluir usuário que possui pedidos relacionados.");
+        }
     }
 
     @Transactional
-    public Product update(Long id, Product product) {
-        Product entity = productRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("Produto não encontrado para o ID: " + id));
-        updateData(entity, product);
+    public Product update(Long id, ProductRecordDto productDto) {
+        LOGGER.info("Atualizando produto com ID: " + id);
+        Product entity = findById(id);
+        updateData(entity, productDto);
         return productRepository.save(entity);
     }
 
-    private void updateData(Product entity, Product product) {
-        Optional.ofNullable(product.getName()).ifPresent(entity::setName);
-        Optional.ofNullable(product.getDescription()).ifPresent(entity::setDescription);
-        Optional.ofNullable(product.getPrice()).ifPresent(entity::setPrice);
-        Optional.ofNullable(product.getImgUrl()).ifPresent(entity::setImgUrl);
+    private void updateData(Product entity, ProductRecordDto dto) {
+        if (dto.name() != null)
+            entity.setName(dto.name());
+        if (dto.description() != null)
+            entity.setDescription(dto.description());
+        if (dto.price() != null)
+            entity.setPrice(dto.price());
+        if (dto.imgUrl() != null)
+            entity.setImgUrl(dto.imgUrl());
     }
 }

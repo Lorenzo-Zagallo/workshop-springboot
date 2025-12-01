@@ -4,14 +4,28 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lorenzozagallo.jpa.models.pk.OrderItemPK;
 import jakarta.persistence.*;
 
-import java.util.Optional;
-
 @Entity
 @Table(name = "order_items")
 public class OrderItem {
 
     @EmbeddedId
     private OrderItemPK id = new OrderItemPK();
+
+    // @MapsId("orderId") significa: "Pegue o ID deste objeto Order e coloque dentro
+    // de id.orderId"
+    @ManyToOne
+    @MapsId("orderId")
+    @JoinColumn(name = "order_id")
+    @JsonIgnore // Evita o loop infinito no JSON
+    private Order order;
+
+    // @MapsId("productId") significa: "Pegue o ID deste objeto Product e coloque
+    // dentro de id.productId"
+    @ManyToOne
+    @MapsId("productId")
+    @JoinColumn(name = "product_id")
+    // Sem @JsonIgnore aqui, pois queremos ver o produto no detalhe do pedido!
+    private Product product;
 
     private Integer quantity;
     private Double price;
@@ -20,28 +34,40 @@ public class OrderItem {
     }
 
     public OrderItem(Order order, Product product, Integer quantity, Double price) {
-        this.id = new OrderItemPK(order.getId(), product.getId());
+        this.order = order;
+        this.product = product;
         this.quantity = quantity;
         this.price = price;
+        // O JPA preenche o ID automaticamente graças ao @MapsId,
+        // mas podemos forçar para garantir em testes unitários:
+        this.id.setOrderId(order.getId());
+        this.id.setProductId(product.getId());
     }
 
-    @ManyToOne
-    @MapsId("orderId") // mapeia a chave composta 'orderId' da classe OrderItemPK
-    @JoinColumn(name = "order_id", insertable = false, updatable = false)
-    @JsonIgnore
-    private Order order;
+    // Getters e Setters corrigidos para usar os atributos da classe, não do ID
 
-    @ManyToOne
-    @MapsId("productId") // mapeia a chave composta 'productId' da classe OrderItemPK
-    @JoinColumn(name = "product_id", insertable = false, updatable = false)
     @JsonIgnore
-    private Product product;
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
 
     public double getSubTotal() {
         return price * quantity;
     }
 
-
+    // Demais Getters e Setters
     public OrderItemPK getId() {
         return id;
     }
@@ -64,21 +90,5 @@ public class OrderItem {
 
     public void setPrice(Double price) {
         this.price = price;
-    }
-
-    public Optional<Order> getOrder() {
-        return Optional.ofNullable(order);
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
-    public Optional<Product> getProduct() {
-        return Optional.ofNullable(product);
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
     }
 }

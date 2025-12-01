@@ -1,9 +1,6 @@
 package com.lorenzozagallo.jpa.models.pk;
 
-import com.lorenzozagallo.jpa.models.Order;
-import com.lorenzozagallo.jpa.models.Product;
 import jakarta.persistence.Embeddable;
-
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -39,8 +36,10 @@ public class OrderItemPK implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         OrderItemPK that = (OrderItemPK) o;
         return Objects.equals(orderId, that.orderId) && Objects.equals(productId, that.productId);
     }

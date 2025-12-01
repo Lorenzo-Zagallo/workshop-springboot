@@ -2,61 +2,72 @@ package com.lorenzozagallo.jpa.services;
 
 import com.lorenzozagallo.jpa.dtos.OrderItemRecordDto;
 import com.lorenzozagallo.jpa.dtos.OrderRecordDto;
-import com.lorenzozagallo.jpa.models.*;
+import com.lorenzozagallo.jpa.models.Order;
+import com.lorenzozagallo.jpa.models.OrderItem;
+import com.lorenzozagallo.jpa.models.Product;
+import com.lorenzozagallo.jpa.models.User;
 import com.lorenzozagallo.jpa.repositories.OrderRepository;
 import com.lorenzozagallo.jpa.repositories.UserRepository;
 import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private static final Logger LOGGER = Logger.getLogger(OrderService.class.getName());
 
-    @Autowired
-    private UserRepository userRepository;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final ProductService productService;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ProductService productService;
-
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository, ProductService productService) {
+        this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
+        this.productService = productService;
+    }
 
     public List<Order> findAll() {
+        LOGGER.info("Buscando todos os pedidos");
         return orderRepository.findAll();
     }
 
-    public Optional<Order> findById(Long id) {
-        return orderRepository.findById(id);
+    public Order findById(Long id) {
+        LOGGER.info("Buscando pedido com ID: " + id);
+        return orderRepository.findById(id)
+                .orElseThrow(() -> { 
+                    LOGGER.warning("Pedido não encontrado para o ID: " + id);
+                    return new ResourceNotFoundException("Pedido não encontrado para o ID: " + id);
+                });
     }
 
     @Transactional
     public Order save(OrderRecordDto orderRecordDto) {
+        LOGGER.info("Salvando novo pedido para o cliente ID: " + orderRecordDto.clientId());
         try {
-            // busca o usuário
+            // Busca o usuário (Client)
             User client = userRepository.findById(orderRecordDto.clientId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado para o ID: " + orderRecordDto.clientId()));
+                    .orElseThrow(() -> {
+                        LOGGER.warning("Usuário não encontrado para o ID: " + orderRecordDto.clientId());
+                        return new ResourceNotFoundException("Usuário não encontrado para o ID: " + orderRecordDto.clientId());
+                    });
 
-            // cria o pedido
+            // Instancia o Pedido
             Order order = new Order();
-            order.setMoment(orderRecordDto.moment());
+            order.setMoment(Instant.now());
             order.setOrderStatus(orderRecordDto.orderStatus());
             order.setClient(client);
 
-
-            // adiciona os itens ao pedido
+            // Processa os Itens
             List<OrderItem> orderItems = orderRecordDto.items().stream()
                     .map(dto -> {
-                        Product product = productService.findById(dto.productID())
-                                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado para o ID: " + dto.productID()));
+                        Product product = productService.findById(dto.productID());
                         return new OrderItem(order, product, dto.quantity(), dto.price());
                     }).toList();
 
@@ -64,61 +75,49 @@ public class OrderService {
 
             return orderRepository.save(order);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Erro de integridade ao salvar o pedido: " + e.getMessage());
+            throw new RuntimeException("Erro de integridade ao salvar o pedido.");
         }
     }
 
-
+    @Transactional
     public void delete(Long id) {
+        LOGGER.info("Excluindo pedido com ID: " + id);
         if (!orderRepository.existsById(id)) {
             throw new ResourceNotFoundException("Pedido não encontrado para o ID: " + id);
         }
         try {
             orderRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Erro ao excluir o pedido: " + e.getMessage());
+            throw new RuntimeException("Não é possível excluir um pedido que possui itens ou pagamentos associados.");
         }
     }
 
     @Transactional
-    public Order update(Long id, Order order) {
-        Order entity = orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado para o ID: " + id));
-
-        Optional.ofNullable(order.getMoment()).ifPresent(entity::setMoment);
-        Optional.ofNullable(order.getOrderStatus()).ifPresent(entity::setOrderStatus);
-        Optional.ofNullable(order.getClient()).ifPresent(entity::setClient);
-
-        try {
-            return orderRepository.save(entity);
-        } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Erro ao atualizar o pedido: " + e.getMessage());
-        }
+    public Order update(Long id, OrderRecordDto dto) {
+        LOGGER.info("Atualizando pedido com ID: " + id);
+        Order entity = findById(id);
+        updateData(entity, dto);
+        return orderRepository.save(entity);
     }
 
+    // Método auxiliar para atualizar dados (apenas status por enquanto, já que não
+    // se muda itens facilmente em update)
+    private void updateData(Order entity, OrderRecordDto dto) {
+        if (dto.orderStatus() != null)
+            entity.setOrderStatus(dto.orderStatus());
+        // Lógica de update de pedido geralmente é restrita
+    }
+
+    // Método EXTRA que você queria (Adicionar item em pedido existente)
     @Transactional
-    public Order addItemToOrder(Long orderId, OrderItemRecordDto orderItemRecordDto) {
+    public Order addItemToOrder(Long orderId, OrderItemRecordDto itemDto) {
+        LOGGER.info("Adicionando item ao pedido ID: " + orderId);
+        Order order = findById(orderId); // Já lança erro se não achar
+        Product product = productService.findById(itemDto.productID()); // Já lança erro se não achar
 
-        System.out.println("orderId: " + orderId);
-        System.out.println("productID: " + orderItemRecordDto.productID());
-        System.out.println("quantity: " + orderItemRecordDto.quantity());
-        System.out.println("price: " + orderItemRecordDto.price());
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado para o ID: " + orderId));
-
-        Product product = productService.findById(orderItemRecordDto.productID())
-                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado para o ID: " + orderItemRecordDto.productID()));
-
-        OrderItem newItem = new OrderItem(order, product,
-                orderItemRecordDto.quantity(), orderItemRecordDto.price());
-
+        OrderItem newItem = new OrderItem(order, product, itemDto.quantity(), itemDto.price());
         order.getItems().add(newItem);
 
-        try {
-            return orderRepository.save(order);
-        } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Erro ao adicionar item ao pedido: " + e.getMessage());
-        }
+        return orderRepository.save(order);
     }
 }

@@ -9,38 +9,51 @@ import com.lorenzozagallo.jpa.services.exceptions.DatabaseException;
 import com.lorenzozagallo.jpa.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class PaymentService {
 
-    @Autowired
-    private PaymentRepository paymentRepository;
+    private static final Logger LOGGER = Logger.getLogger(PaymentService.class.getName());
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final PaymentRepository paymentRepository;
+    private final OrderRepository orderRepository;
+
+    public PaymentService(PaymentRepository paymentRepository, OrderRepository orderRepository) {
+        this.paymentRepository = paymentRepository;
+        this.orderRepository = orderRepository;
+    }
 
     public List<Payment> findAll() {
+        LOGGER.info("Buscando todos os pagamentos");
         return paymentRepository.findAll();
     }
 
-    public Optional<Payment> findById(Long id) {
+    public Payment findById(Long id) {
+        LOGGER.info("Buscando pagamento com ID: " + id);
         return paymentRepository.findById(id)
-                .or(() -> { throw new ResourceNotFoundException("Pagamento não encontrado para o ID: " + id); });
+                .orElseThrow(() -> {
+                        LOGGER.warning("Pagamento não encontrado para o ID: " + id);
+                        throw new ResourceNotFoundException("Pagamento não encontrado para o ID: " + id);
+                    });
     }
 
     @Transactional
     public Payment createPayment(PaymentRecordDto paymentRecordDto) {
+        LOGGER.info("Criando pagamento para o pedido ID: " + paymentRecordDto.orderId());
         try {
             Order order = orderRepository.findById(paymentRecordDto.orderId())
-                    .orElseThrow(() -> new RuntimeException("Order not found"));
+                    .orElseThrow(() -> {
+                        LOGGER.warning("Pedido não encontrado para o ID: " + paymentRecordDto.orderId());
+                        return new RuntimeException("Order not found");
+                    });
 
-            // criar o Payment
+            // Cria o Payment
             Payment payment = new Payment();
             payment.setMoment(paymentRecordDto.moment());
             payment.setOrder(order); // associar o Order ao Payment
@@ -54,6 +67,7 @@ public class PaymentService {
 
     @Transactional
     public void delete(Long id) {
+        LOGGER.info("Excluindo pagamento com ID: " + id);
         if (!paymentRepository.existsById(id)) {
             throw new ResourceNotFoundException("Pagamento não encontrado para o ID: " + id);
         }
@@ -66,9 +80,12 @@ public class PaymentService {
 
     @Transactional
     public Payment update(Long id, Payment payment) {
+        LOGGER.info("Atualizando pagamento com ID: " + id);
         try {
             Payment entity = paymentRepository.getReferenceById(id);
-            Optional.ofNullable(payment.getMoment()).ifPresent(entity::setMoment);
+            if (payment.getMoment() != null) {
+                entity.setMoment(payment.getMoment());
+            }
             return paymentRepository.save(entity);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Pagamento não encontrado para o ID: " + id);

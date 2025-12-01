@@ -1,166 +1,86 @@
-# Projeto API com Java, Spring Boot, JPA e SQL Server  
+# Sistema de Gerenciamento de Pedidos (API RESTful)
 
-## Descrição  
-Este projeto consiste em uma aplicação web para o monitoramento e gerenciamento de uma loja de produtos. Ele consiste no desenvolvimento de uma API RESTful utilizando **Java**, **Spring Boot**(Spring Data JPA e Spring Web) e **SQL Server** como banco de dados para a persistência dos dados.
-Nele, é permitido as operações de CRUD em um sistema que envolve entidades como usuários, produtos, pedidos, pagamentos e categorias dos produtos. 
-Como teste para as requisições HTTP e validação dos endpoints implementados, foi utilizado o **Postman**.
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
+![Hibernate](https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=Hibernate&logoColor=white)
+![MicrosoftSQLServer](https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white)
 
-O projeto segue uma arquitetura baseada em camadas, o que garante organização, facilidade de manutenção e escalabilidade.  
+## 💡 Sobre o Projeto
 
-## Domain Model
+Este projeto é uma API RESTful completa para gerenciamento de pedidos de uma loja, simulando um ecossistema real de e-commerce.
 
-![Domain_Model](images/domainModel.png)
+O objetivo principal foi desenvolver uma aplicação robusta utilizando as melhores práticas do ecossistema **Spring Boot 3** e **Java 21**, focando em:
+* **Arquitetura em Camadas** (Controllers, Services, Repositories).
+* **Tratamento de Exceções Global** para respostas HTTP adequadas.
+* **Padrão DTO** (Data Transfer Object) para segurança e desacoplamento da entidade.
+* **Injeção de Dependência** via construtor (Best Practice).
+* **Mapeamento Objeto-Relacional (ORM)** complexo (Many-to-Many com atributos extras).
 
+## 🛠 Tecnologias Utilizadas
 
----
+* **Java 21** (LTS)
+* **Spring Boot 3.4.2**
+* **Spring Data JPA / Hibernate**
+* **Banco de Dados:** SQL Server (Produção) / H2 Database (Testes)
+* **Maven** (Gerenciamento de dependências)
 
-## Funcionalidades  
-- Operações CRUD completas para as entidades:  
-  - **Usuários**  
-  - **Produtos**  
-  - **Categorias**
-  - **Pedidos**  
-  - **Pagamentos**
-- Relacionamentos entre entidades gerenciados com **JPA**.  
-- Mapeamento Objeto-Relacional com validações e constraints.
-- Organização por camadas: `controllers`, `services`, `dto's`, `repositories` e `models`.  
-- Tratamento de exceções personalizado.
-- Interface gráfica em HTML, CSS e Javascript
+## 📐 Modelo de Domínio
 
----
+O sistema resolve o desafio de **Associações Many-to-Many com atributos extras** (na classe `OrderItem`), garantindo a integridade dos dados entre Pedidos e Produtos.
 
-## Tecnologias Utilizadas  
-- **Java**: Linguagem principal do projeto.  
-- **Spring Boot**: Framework para simplificar a configuração e desenvolvimento de aplicações Java.  
-- **JPA (Java Persistence API)**: Gerenciamento e mapeamento objeto-relacional.  
-- **SQL Server**: Banco de dados utilizado para armazenar e gerenciar as informações.  
-- **Postman**: Ferramenta para testar os endpoints da API.
-- **HTML**: Utilizado para criar a estrutura das páginas
-- **CSS**: Utilizado para estilizar as páginas.
-- **Javascript**: Linguagem para fazer a ponte do backend para o frontend e para dar dinâmica à interface em HTML/CSS.
+Principais Entidades:
+* `User` (Cliente)
+* `Order` (Pedido)
+* `Product` (Produto)
+* `Category` (Categoria)
+* `Payment` (Pagamento 1:1)
 
----
+## 🚀 Como Executar
 
-## Estrutura do Projeto  
-A estrutura do projeto foi organizada da seguinte forma:  
+### Pré-requisitos
+* Java 21 ou superior instalado.
+* Maven.
+* SQL Server (Opcional - o projeto está configurado para rodar com H2 em memória por padrão para testes rápidos).
+
+### Passos
+1. Clone o repositório:
+```bash
+git clone [https://github.com/SEU-USUARIO/NOME-DO-REPO.git](https://github.com/SEU-USUARIO/NOME-DO-REPO.git)
+````
+
+2.  Entre na pasta:
+
+<!-- end list -->
+
+```bash
+cd workshop-springboot3-jpa
 ```
-src/main/java/com.lorenzozagallo.jpa
-├── config             # Apenas dados para fazer os testes
-├── controllers        # Controladores responsáveis pelos endpoints
-│   ├── exceptions     # Tratamento de exceções
-├── cors               # Habilita que um servidor relaxe a política de mesma origem
-├── dtos               # Objetos de transferência de dados  
-├── models             # Modelos das entidades  
-│   ├── enums          # Enumeradores utilizados nas entidades  
-│   ├── pk             # Chaves primárias compostas  
-├── repositories       # Interfaces para acesso ao banco de dados  
-├── services           # Regras de negócio e lógica de aplicação  
-│   ├── exceptions     # Tratamento de exceções  
-└── main               # Classe principal para inicialização da aplicação  
 
+3.  Execute a aplicação:
 
-src/main/resources
-└── properties         # Configurações da conexão com o JPA e o Database  
+<!-- end list -->
 
-src/main/front-end
-├── scripts            # Javascript para realizar a conexão com o backend  
-├── styles             # Estilização do html
-└── index              # Estrutura do frontend
-```  
+```bash
+./mvnw spring-boot:run
+```
 
----
+4.  Acesse o Console do Banco de Dados (H2):
+      * URL: `http://localhost:8080/h2-console`
+      * JDBC URL: `jdbc:h2:mem:testdb`
+      * User: `sa`
+      * Password: (vazio)
 
-## Pré-requisitos  
-Certifique-se de ter os seguintes recursos instalados na sua máquina:  
-- **Java 17+**
-- **Maven**
-- **SQL Server** (ou algum banco de dados de sua preferência, só mudar no properties)
-- **Postman** (opcional, mas recomendado para testes)
+## Endpoints Principais
 
----
+| Método | Endpoint | Descrição |
+|---|---|---|
+| GET | `/workshop/products` | Lista todos os produtos |
+| GET | `/workshop/orders/{id}` | Busca pedido por ID (com itens) |
+| POST | `/workshop/orders` | Cria um novo pedido |
+| POST | `/workshop/users` | Cria um novo usuário |
 
-## Como Executar o Projeto  
+## 👨‍💻 Autor
 
-1. **Clone este repositório**:  
-   ```bash  
-   git clone https://github.com/seu-usuario/nome-do-repositorio.git  
-   cd nome-do-repositorio  
-   ```  
+**Lorenzo Zagallo**
 
-2. **Configure o Banco de Dados**:  
-   - Crie um banco de dados no SQL Server.  
-   - Atualize as configurações de conexão no arquivo `application.properties` ou `application.yml` na pasta `src/main/resources`.  
-
-3. **Compile e execute o projeto**:  
-   ```bash  
-   mvn spring-boot:run  
-   ```  
-
-4. **Teste os Endpoints**:  
-   - Importe o arquivo de coleção no Postman (caso exista).
-   - Utilize os endpoints disponíveis para realizar as operações CRUD.
-  ```
-  {
-  "info": {
-    "name": "API Collection - Users and Products",
-    "description": "Coleção para testar endpoints de usuários e produtos.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Criar um Usuário",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "type": "text"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"Bob Brown\",\n  \"email\": \"bob@gmail.com\",\n  \"phone\": \"977557755\",\n  \"password\": \"123456\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/users",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["users"]
-        }
-      }
-    },
-    {
-      "name": "Criar um Produto",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "type": "text"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"The Lord of the Rings\",\n  \"description\": \"Lorem ipsum dolor sit amet, consectetur.\",\n  \"price\": 90.5,\n  \"imgUrl\": \"\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/products",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
-          "path": ["products"]
-        }
-      }
-    }
-  ]
-}
-
-  ```
-
----
-
-## Contribuições  
-Contribuições são bem-vindas! Sinta-se à vontade para abrir uma issue ou criar um pull request com melhorias ou correções.
+* [LinkedIn](https://www.linkedin.com/in/lorenzo-zagallo-07654a2b9/)

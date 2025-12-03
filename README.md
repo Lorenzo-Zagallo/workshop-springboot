@@ -35,6 +35,12 @@ Principais Entidades:
 * `Category` (Categoria)
 * `Payment` (Pagamento 1:1)
 
+<div align="center">
+  <img src="./images/domainModel.png" alt="Logo do Projeto" width="500">
+  <br>
+  <sub>Figura 1: Arquitetura do sistema</sub>
+</div>
+
 ## 🚀 Como Executar
 
 ### Pré-requisitos
@@ -45,7 +51,7 @@ Principais Entidades:
 ### Passos
 1. Clone o repositório:
 ```bash
-git clone [https://github.com/SEU-USUARIO/NOME-DO-REPO.git](https://github.com/SEU-USUARIO/NOME-DO-REPO.git)
+git clone https://github.com/SEU-USUARIO/NOME-DO-REPO.git
 ````
 
 2.  Entre na pasta:
